@@ -2,7 +2,7 @@
 title: There is no code path from a model tool call to a refund
 description: How an LLM support agent can propose refunds without being able to issue one. Four independent barriers, any one of which is enough on its own.
 pubDate: 2026-09-17
-draft: true
+draft: false
 tags: [agents, guardrails, langgraph]
 ---
 
