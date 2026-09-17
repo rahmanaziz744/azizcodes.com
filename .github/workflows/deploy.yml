@@ -1,0 +1,42 @@
+name: Deploy to GitHub Pages
+
+# Builds the site and publishes it to GitHub Pages on every push to main.
+# This is the official Astro workflow: withastro/action installs with the
+# package manager from the lockfile, runs `astro build` and uploads `dist` as
+# the Pages artifact. The custom domain is set in the repository's Pages
+# settings; public/CNAME only records it.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Two quick pushes should publish in order rather than race.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout your repository using git
+        uses: actions/checkout@v7
+      - name: Install, build, and upload your site
+        uses: withastro/action@v6
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

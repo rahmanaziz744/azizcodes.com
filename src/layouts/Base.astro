@@ -1,0 +1,84 @@
+---
+import '../styles/global.css';
+import { SITE } from '../config';
+
+interface Props {
+  /** Page name. Omit on the home page to use the site name alone. */
+  title?: string;
+  description?: string;
+  type?: 'website' | 'article';
+  jsonLd?: Record<string, unknown>;
+}
+
+const { title, description = SITE.description, type = 'website', jsonLd } = Astro.props;
+
+const pageTitle = title ? `${title} | ${SITE.name}` : `${SITE.name} | ${SITE.jobTitle}`;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL('/og-default.png', Astro.site).href;
+const rss = new URL('/rss.xml', Astro.site).href;
+const path = Astro.url.pathname;
+
+// `<` escaped so no string in the data can close the script element early.
+const structuredData = jsonLd && JSON.stringify(jsonLd).replace(/</g, '\\u003c');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.name}: Writing`} href={rss} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121413" media="(prefers-color-scheme: dark)" />
+    <meta name="author" content={SITE.name} />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={title ?? SITE.name} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <slot name="head" />
+    {structuredData && <script is:inline type="application/ld+json" set:html={structuredData} />}
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="wordmark" href="/">{SITE.name}</a>
+        <nav class="site-nav" aria-label="Main">
+          <a href="/writing/" aria-current={path.startsWith('/writing/') ? 'page' : undefined}>Writing</a>
+          <a href="/projects/support-agent/" aria-current={path.startsWith('/projects/') ? 'page' : undefined}>Projects</a>
+          <a href={`mailto:${SITE.email}`}>Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>{SITE.name}</p>
+        <ul class="inline-links">
+          <li><a href={`mailto:${SITE.email}`}>Email</a></li>
+          <li><a href={SITE.github}>GitHub</a></li>
+          {SITE.linkedin && <li><a href={SITE.linkedin}>LinkedIn</a></li>}
+          {SITE.resume && <li><a href={SITE.resume}>Resume</a></li>}
+          <li><a href="/rss.xml">RSS</a></li>
+        </ul>
+      </div>
+    </footer>
+  </body>
+</html>

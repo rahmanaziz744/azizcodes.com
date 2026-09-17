@@ -1,0 +1,113 @@
+---
+import { Image } from 'astro:assets';
+import PostList from '../components/PostList.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { SITE, SUPPORT_AGENT } from '../config';
+import Base from '../layouts/Base.astro';
+import { getPosts } from '../lib/posts';
+import knowledgeos from '../assets/projects/knowledgeos.png';
+import signaldesk from '../assets/projects/signaldesk.png';
+import hero from '../assets/support-agent/02b-approve-draft.png';
+
+const posts = await getPosts();
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: SITE.name,
+  url: SITE.url,
+  jobTitle: SITE.jobTitle,
+  email: `mailto:${SITE.email}`,
+  sameAs: [SITE.github, SITE.linkedin].filter(Boolean),
+};
+---
+
+<Base jsonLd={jsonLd}>
+  <section class="intro wrap">
+    <div class="measure">
+      <h1>{SITE.name}</h1>
+      <p class="lede">I build LLM systems where the model proposes and deterministic code decides.</p>
+      <p>
+        My projects are agents that work close to something expensive to get wrong: refunds, a
+        company's data warehouse, its policy documents. The model handles language. Rules engines,
+        gates and a human approver make the decisions, and evals check both.
+      </p>
+      {/* TODO(Abdul): one sentence on prior experience (years, domains, employer) once the wording is final. */}
+      <p>I'm looking for an AI engineer role building agents, retrieval systems and the evaluation around them.</p>
+      <ul class="inline-links">
+        <li><a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+        <li><a href={SITE.github}>GitHub</a></li>
+        {SITE.linkedin && <li><a href={SITE.linkedin}>LinkedIn</a></li>}
+        {SITE.resume && <li><a href={SITE.resume}>Resume (PDF)</a></li>}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section wrap" aria-labelledby="featured-heading">
+    <h2 class="section-label" id="featured-heading">Featured project</h2>
+    <article class="featured">
+      <a href="/projects/support-agent/" tabindex="-1" aria-hidden="true">
+        <Image
+          src={hero}
+          alt=""
+          priority
+          sizes="(min-width: 60rem) 34rem, (min-width: 52rem) 58vw, 100vw"
+          class="shot"
+        />
+      </a>
+      <div>
+        <h3><a href="/projects/support-agent/">AI Customer Support Agent</a></h3>
+        <p>
+          Triages support tickets against company policy, decides refund eligibility with a
+          deterministic rules engine, drafts a reply, and holds everything for a human to approve.
+          There is no code path from a model tool call to a refund.
+        </p>
+        <p>
+          The first eval run missed 5 of the 15 tickets that should have reached a human. Four fixes
+          later it misses none. It runs live on AWS, deployed from Terraform.
+        </p>
+        <p class="stack">FastAPI · LangGraph · Postgres + pgvector · Claude · Terraform · AWS</p>
+        <ul class="actions">
+          <li><a class="button" href={SUPPORT_AGENT.demo}>Try the live demo</a></li>
+          <li><a href="/projects/support-agent/">How it works</a></li>
+          <li><a href={SUPPORT_AGENT.repo}>Source</a></li>
+        </ul>
+      </div>
+    </article>
+  </section>
+
+  {
+    posts.length > 0 && (
+      <section class="section wrap" aria-labelledby="writing-heading">
+        <h2 class="section-label" id="writing-heading">Writing</h2>
+        <PostList posts={posts} />
+      </section>
+    )
+  }
+
+  <section class="section wrap" aria-labelledby="more-heading">
+    <h2 class="section-label" id="more-heading">Other projects</h2>
+    <div class="cards">
+      <ProjectCard
+        title="SignalDesk Analyst"
+        href="https://github.com/rahmanaziz744/AI-Data-Analyst-Agent"
+        image={signaldesk}
+        alt="The SignalDesk workspace: a business question, an answer with evidence links, a chart and the SQL it came from."
+        stack="FastAPI · SQLGlot · DuckDB + Postgres · OpenAI · Next.js"
+      >
+        An AI data analyst that turns plain-English business questions into validated SQL, charts
+        and cited reports, without ever giving the model a database connection.
+      </ProjectCard>
+      <ProjectCard
+        title="KnowledgeOS"
+        href="https://github.com/rahmanaziz744/RAG-Knowledge-Assistant"
+        image={knowledgeos}
+        alt="A KnowledgeOS answer with an inline citation linking back to the source document."
+        stack="FastAPI · Postgres + pgvector · hybrid search · reranking · Next.js"
+      >
+        A multi-tenant RAG platform where every claim cites the exact document version and chunk it
+        came from, and fabricated citations are stripped before the answer is returned.
+      </ProjectCard>
+    </div>
+  </section>
+</Base>

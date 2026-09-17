@@ -1,0 +1,29 @@
+---
+import { formatDate, postPath, type Post } from '../lib/posts';
+
+interface Props {
+  posts: Post[];
+  /** h2 on the writing index, h3 where the list sits under a section heading. */
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { posts, headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+---
+
+<ol class="post-list">
+  {
+    posts.map((post) => (
+      <li>
+        <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+        <div>
+          <Heading>
+            <a href={postPath(post)}>{post.data.title}</a>
+            {post.data.draft && <span class="badge">Draft</span>}
+          </Heading>
+          <p>{post.data.description}</p>
+        </div>
+      </li>
+    ))
+  }
+</ol>

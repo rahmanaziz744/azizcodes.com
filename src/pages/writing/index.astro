@@ -1,0 +1,23 @@
+---
+import PostList from '../../components/PostList.astro';
+import Base from '../../layouts/Base.astro';
+import { getPosts } from '../../lib/posts';
+
+const posts = await getPosts();
+---
+
+<Base
+  title="Writing"
+  description="Notes on building LLM agents: the design decisions, the bugs the evals caught, and the problems worth writing down."
+>
+  <div class="wrap">
+    <header class="page-header measure">
+      <h1>Writing</h1>
+      <p>
+        Notes from building LLM systems: why they are shaped the way they are, and what broke along
+        the way.
+      </p>
+    </header>
+    {posts.length > 0 ? <PostList posts={posts} headingLevel="h2" /> : <p>Nothing published yet.</p>}
+  </div>
+</Base>
